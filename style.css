@@ -365,36 +365,6 @@ header p {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.card-corner {
-    position: absolute;
-    font-size: 1.1em;
-    color: var(--gold);
-    z-index: 15;
-    font-family: 'Cinzel', serif;
-}
-
-.card-corner.top-left {
-    top: 10px;
-    left: 10px;
-}
-
-.card-corner.bottom-right {
-    bottom: 10px;
-    right: 10px;
-    transform: rotate(180deg);
-}
-
-.suit-symbol {
-    position: absolute;
-    font-size: 0.7em;
-    color: var(--gold);
-    opacity: 0.6;
-    z-index: 15;
-}
-
-.suit-top { top: 26px; right: 14px; }
-.suit-bottom { bottom: 26px; left: 14px; transform: rotate(180deg); }
-
 .print-section {
     text-align: center;
     margin: 50px auto;

@@ -132,7 +132,6 @@
             
             .card-inner { 
                 border-radius: 4px !important;
-                background: #0d0d1a !important;
             }
             
             .animal-section { 
@@ -143,8 +142,7 @@
             
             .animal-section::before { display: none !important; }
             .change-btn, .color-menu-btn, .bg-menu-btn, .color-palette, .bg-menu-options { display: none !important; }
-            .card-number, .card-corner, .suit-symbol { color: #333 !important; font-size: 10pt !important; }
-            .suit-symbol { opacity: 0.8 !important; }
+            .card-number { color: #333 !important; font-size: 10pt !important; }
         }
     </style>
 </head>
@@ -328,6 +326,7 @@
             const carta = document.getElementById(`card-${cartaIndex}`);
             const cardInner = carta.querySelector('.card-inner');
             cardInner.style.background = color;
+            cardInner.style.setProperty('--card-bg-color', color);
             document.getElementById(`bg-opciones-${cartaIndex}`).classList.remove('show');
         }
         
@@ -340,7 +339,10 @@
                     reader.onload = function(evt) {
                         const carta = document.getElementById(`card-${cartaIndex}`);
                         const cardInner = carta.querySelector('.card-inner');
-                        cardInner.style.background = `url(${evt.target.result}) center/cover no-repeat`;
+                        const imgUrl = evt.target.result;
+                        cardInner.style.backgroundImage = `url(${imgUrl})`;
+                        cardInner.style.backgroundSize = 'cover';
+                        cardInner.style.backgroundPosition = 'center';
                         document.getElementById(`bg-opciones-${cartaIndex}`).classList.remove('show');
                     };
                     reader.readAsDataURL(file);
@@ -377,8 +379,6 @@
                 const valor = valores[i];
                 
                 let html = `
-                    <span class="card-corner top-left">${valor}</span>
-                    <span class="suit-symbol suit-top">${palo}</span>
                     <span class="card-number">${String(i + 1).padStart(2, '0')}</span>
                     
                     <div class="color-palette" id="paleta-${i}">
@@ -388,12 +388,25 @@
                     
                     <div class="bg-menu-options" id="bg-opciones-${i}">
                         <h4>FONDO DE LA CARTA</h4>
-                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#0d0d1a')">Negro</button>
-                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#1a1a2e')">Azul oscuro</button>
-                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#000000')">Negro puro</button>
-                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#1e3a5f')">Azul marino</button>
-                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#2d1b1b')">Café oscuro</button>
-                        <button class="bg-option" onclick="cambiarFondoImagen(${i})">🖼️ Elegir imagen</button>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px;">
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0d0d1a;" onclick="aplicarFondoColor(${i}, '#0d0d1a')" title="Negro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1a1a2e;" onclick="aplicarFondoColor(${i}, '#1a1a2e')" title="Azul oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #000000;" onclick="aplicarFondoColor(${i}, '#000000')" title="Negro puro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1e3a5f;" onclick="aplicarFondoColor(${i}, '#1e3a5f')" title="Azul marino"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #2d1b1b;" onclick="aplicarFondoColor(${i}, '#2d1b1b')" title="Café"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0f172a;" onclick="aplicarFondoColor(${i}, '#0f172a')" title="Azul noche"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1c1917;" onclick="aplicarFondoColor(${i}, '#1c1917')" title="Gris oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0c4a6e;" onclick="aplicarFondoColor(${i}, '#0c4a6e')" title="Azul profundo"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #7f1d1d;" onclick="aplicarFondoColor(${i}, '#7f1d1d')" title="Rojo oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #14532d;" onclick="aplicarFondoColor(${i}, '#14532d')" title="Verde oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #581c87;" onclick="aplicarFondoColor(${i}, '#581c87')" title="Morado"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #9a3412;" onclick="aplicarFondoColor(${i}, '#9a3412')" title="Naranja oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #be185d;" onclick="aplicarFondoColor(${i}, '#be185d')" title="Rosa"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0f766e;" onclick="aplicarFondoColor(${i}, '#0f766e')" title="Verde"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1e40af;" onclick="aplicarFondoColor(${i}, '#1e40af')" title="Azul real"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #f59e0b;" onclick="aplicarFondoColor(${i}, '#f59e0b')" title="Dorado"></button>
+                        </div>
+                        <button class="bg-option" style="width: 100%; text-align: center;" onclick="cambiarFondoImagen(${i})">🖼️ Elegir imagen</button>
                     </div>
                     
                     <button class="color-menu-btn" onclick="mostrarPaleta(${i}, 'borde')" title="Cambiar color del borde">🎨</button>
@@ -416,8 +429,6 @@
                 
                 html += `
                     </div>
-                    <span class="card-corner bottom-right">${valor}</span>
-                    <span class="suit-symbol suit-bottom">${palo}</span>
                 `;
                 
                 carta.innerHTML = html;
