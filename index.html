@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANIMALS COLLECTION - Editor Interactivo</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #fileInput, #bgImageInput { display: none; }
+        
+        .change-btn {
+            position: absolute;
+            z-index: 30;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            opacity: 0;
+            border: none;
+            font-size: 1em;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(201, 162, 39, 0.95);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+        }
+        
+        .animal-section:hover .change-btn { opacity: 1; }
+        .change-btn:hover { background: rgba(232, 197, 71, 1); transform: translate(-50%, -50%) scale(1.1); }
+        
+        .color-menu-btn, .bg-menu-btn {
+            position: absolute;
+            z-index: 30;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            opacity: 0;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(201, 162, 39, 0.9);
+            border: 1px solid #fff;
+            border-radius: 4px;
+            font-size: 0.7em;
+        }
+        
+        .card:hover .color-menu-btn, .card:hover .bg-menu-btn { opacity: 1; }
+        .color-menu-btn:hover, .bg-menu-btn:hover { background: rgba(232, 197, 71, 1); transform: scale(1.1); }
+        
+        .color-menu-btn { bottom: -10px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; }
+        .bg-menu-btn { bottom: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; }
+        
+        .color-palette {
+            display: none;
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        
+        .color-palette.show { display: block; }
+        .color-palette h4 { color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.8em; margin: 0 0 8px 0; text-align: center; }
+        
+        .color-options { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+        .color-option { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; border: 1px solid #fff; transition: transform 0.2s; }
+        .color-option:hover { transform: scale(1.2); border: 2px solid #fff; }
+        
+        .bg-menu-options {
+            display: none;
+            position: absolute;
+            bottom: 40px;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        
+        .bg-menu-options.show { display: block; }
+        .bg-menu-options h4 { color: var(--gold); font-family: 'Cinzel', serif; font-size: 0.8em; margin: 0 0 10px 0; text-align: center; }
+        
+        .bg-option {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            background: rgba(201, 162, 39, 0.3);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin: 4px 0;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .bg-option:hover { background: rgba(201, 162, 39, 0.6); }
+        
+        .card { position: relative; }
+        
+        @media print {
+            @page { size: letter; margin: 0.3in; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: #fff !important; padding: 0 !important; }
+            .container { max-width: 100% !important; padding: 0 !important; }
+            header, .instructions, .print-section { display: none !important; }
+            .cards-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
+            
+            .card {
+                width: 2.4in !important;
+                height: 3.4in !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                box-shadow: none !important;
+                border-radius: 8px !important;
+                overflow: hidden !important;
+                border: 3px solid #c9a227 !important;
+            }
+            
+            .card-inner { 
+                border-radius: 4px !important;
+                background: #0d0d1a !important;
+            }
+            
+            .animal-section { 
+                border: 1px solid #c9a227 !important; 
+                border-radius: 3px !important;
+                margin: 2px !important;
+            }
+            
+            .animal-section::before { display: none !important; }
+            .change-btn, .color-menu-btn, .bg-menu-btn, .color-palette, .bg-menu-options { display: none !important; }
+            .card-number, .card-corner, .suit-symbol { color: #333 !important; font-size: 10pt !important; }
+            .suit-symbol { opacity: 0.8 !important; }
+        }
+    </style>
+</head>
+<body>
+    <input type="file" id="fileInput" accept="image/*">
+    <input type="file" id="bgImageInput" accept="image/*">
+    
+    <div class="container">
+        <header>
+            <h1>⚜ ANIMALS COLLECTION ⚜</h1>
+            <p>Editor Interactivo - 🖼️ = Imagen | 🎨 = Borde/Fondo</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>⚜ Cómo Usar ⚜</h3>
+            <p>🖼️ Cambiar imagen | 🎨 (abajo) = Color del borde | 🎨 (esquina) = Color/imagen del fondo</p>
+        </div>
+        
+        <div class="cards-grid" id="cardsGrid"></div>
+        
+        <div class="print-section">
+            <h2>🖨️ IMPRIMIR / EXPORTAR PDF</h2>
+            <p>Primero personalice las cartas, luego imprima</p>
+            <div class="specs">
+                • 4 cartas por página<br>
+                • Tamaño póker estándar<br>
+                • Los cambios se imprimirán tal como los ves
+            </div>
+            <button class="print-button" onclick="window.print()">IMPRIMIR</button>
+        </div>
+    </div>
+    
+    <script>
+        const coloresBorde = [
+            '#c9a227', '#8b0000', '#1e3a5f', '#1a4d1a', 
+            '#c0c0c0', '#000000', '#ffffff', '#6b21a8',
+            '#ea580c', '#db2777', '#0d9488', '#4f46e5',
+            '#be123c', '#166534', '#7c3aed', '#dc2626',
+            '#f59e0b', '#0891b2', '#e11d48', '#635bff'
+        ];
+        
+        const coloresFondo = [
+            '#0d0d1a', '#1a1a2e', '#000000', '#1e3a5f',
+            '#2d1b1b', '#0f172a', '#1c1917', '#0c4a6e'
+        ];
+        
+        const animalesPorDefecto = [
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="w1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4a5568"/><stop offset="100%" style="stop-color:#2d3748"/></linearGradient></defs><path d="M50 15 C35 15 25 30 25 45 C25 55 30 65 40 72 L35 85 L50 80 L65 85 L60 72 C70 65 75 55 75 45 C75 30 65 15 50 15Z" fill="url(#w1)"/><circle cx="40" cy="40" r="4" fill="#fbbf24"/><circle cx="60" cy="40" r="4" fill="#fbbf24"/></svg>`, alt: 'Lobo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="o1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7c4dff"/><stop offset="100%" style="stop-color:#512da8"/></linearGradient></defs><ellipse cx="50" cy="55" rx="35" ry="40" fill="url(#o1)"/><circle cx="50" cy="35" rx="25" ry="20" fill="url(#o1)"/><circle cx="40" cy="32" r="8" fill="#fff"/><circle cx="60" cy="32" r="8" fill="#fff"/></svg>`, alt: 'Búho' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f97316"/><stop offset="100%" style="stop-color:#c2410c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#t1)"/><path d="M20 45 L50 30 L80 45 L75 60 L50 50 L25 60Z" fill="#fbbf24"/></svg>`, alt: 'Tigre' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ea580c"/><stop offset="100%" style="stop-color:#c2410c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#f1)"/><path d="M50 30 L30 45 L35 55 L50 40 L65 55 L70 45Z" fill="#fbbf24"/></svg>`, alt: 'Zorro' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="d1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#a16207"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#d1)"/><path d="M30 35 L35 15 L40 35 M60 35 L65 15 L70 35" fill="#8b5cf6"/></svg>`, alt: 'Ciervo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#525252"/><stop offset="100%" style="stop-color:#373737"/></linearGradient></defs><ellipse cx="50" cy="65" rx="35" ry="30" fill="url(#b1)"/><circle cx="50" cy="40" r="30" fill="url(#b1)"/></svg>`, alt: 'Oso' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#474b4f"/><stop offset="100%" style="stop-color:#222"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e1)"/><path d="M30 50 L10 45 L20 55Z" fill="#fff"/><path d="M70 50 L90 45 L80 55Z" fill="#fff"/></svg>`, alt: 'Águila' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="p1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1a1a1a"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="55" rx="28" ry="35" fill="url(#p1)"/><circle cx="50" cy="35" r="20" fill="url(#p1)"/></svg>`, alt: 'Pantera' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="c1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#1a1a1a"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#c1)"/><circle cx="50" cy="35" r="18" fill="url(#c1)"/></svg>`, alt: 'Cuervo' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#d97706"/><stop offset="100%" style="stop-color:#b45309"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#l1)"/><circle cx="50" cy="35" r="22" fill="url(#l1)"/></svg>`, alt: 'León' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="w2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5e6c84"/><stop offset="100%" style="stop-color:#3d4654"/></linearGradient></defs><path d="M50 15 C35 15 25 30 25 45 C25 55 30 65 40 72 L35 85 L50 80 L65 85 L60 72 C70 65 75 55 75 45 C75 30 65 15 50 15Z" fill="url(#w2)"/></svg>`, alt: 'Lobo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f97316"/><stop offset="100%" style="stop-color:#ea580c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#f2)"/><path d="M50 30 L30 45 L35 55 L50 40 L65 55 L70 45Z" fill="#fbbf24"/></svg>`, alt: 'Zorro' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="o2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#9f7aea"/><stop offset="100%" style="stop-color:#6b46c1"/></linearGradient></defs><ellipse cx="50" cy="55" rx="35" ry="40" fill="url(#o2)"/><circle cx="50" cy="35" rx="25" ry="20" fill="url(#o2)"/></svg>`, alt: 'Búho' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5a6275"/><stop offset="100%" style="stop-color:#333"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e2)"/></svg>`, alt: 'Águila' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="d2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#c4b5fd"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#d2)"/><path d="M30 35 L35 15 L40 35 M60 35 L65 15 L70 35" fill="#8b5cf6"/></svg>`, alt: 'Ciervo' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fb923c"/><stop offset="100%" style="stop-color:#ea580c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#t2)"/><path d="M20 45 L50 30 L80 45 L75 60 L50 50 L25 60Z" fill="#fbbf24"/></svg>`, alt: 'Tigre' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="p2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#222"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="55" rx="28" ry="35" fill="url(#p2)"/><circle cx="50" cy="35" r="20" fill="url(#p2)"/></svg>`, alt: 'Pantera' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="c2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#222"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#c2)"/><circle cx="50" cy="35" r="18" fill="url(#c2)"/></svg>`, alt: 'Cuervo' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#666666"/><stop offset="100%" style="stop-color:#444444"/></linearGradient></defs><ellipse cx="50" cy="65" rx="35" ry="30" fill="url(#b2)"/><circle cx="50" cy="40" r="30" fill="url(#b2)"/></svg>`, alt: 'Oso' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f59e0b"/><stop offset="100%" style="stop-color:#d97706"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#l2)"/><circle cx="50" cy="35" r="22" fill="url(#l2)"/></svg>`, alt: 'León' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="o3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#a78bfa"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><ellipse cx="50" cy="55" rx="35" ry="40" fill="url(#o3)"/><circle cx="50" cy="35" rx="25" ry="20" fill="url(#o3)"/></svg>`, alt: 'Búho' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="d3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ddd6fe"/><stop offset="100%" style="stop-color:#a78bfa"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#d3)"/><path d="M30 35 L35 15 L40 35 M60 35 L65 15 L70 35" fill="#a78bfa"/></svg>`, alt: 'Ciervo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fdba74"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#t3)"/><path d="M20 45 L50 30 L80 45 L75 60 L50 50 L25 60Z" fill="#fbbf24"/></svg>`, alt: 'Tigre' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="w3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6b7280"/><stop offset="100%" style="stop-color:#4b5563"/></linearGradient></defs><path d="M50 15 C35 15 25 30 25 45 C25 55 30 65 40 72 L35 85 L50 80 L65 85 L60 72 C70 65 75 55 75 45 C75 30 65 15 50 15Z" fill="url(#w3)"/></svg>`, alt: 'Lobo' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#6b7280"/><stop offset="100%" style="stop-color:#4b5563"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e3)"/></svg>`, alt: 'Águila' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fb923c"/><stop offset="100%" style="stop-color:#ea580c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#f3)"/><path d="M50 30 L30 45 L35 55 L50 40 L65 55 L70 45Z" fill="#fbbf24"/></svg>`, alt: 'Zorro' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#777"/><stop offset="100%" style="stop-color:#555"/></linearGradient></defs><ellipse cx="50" cy="65" rx="35" ry="30" fill="url(#b3)"/><circle cx="50" cy="40" r="30" fill="url(#b3)"/></svg>`, alt: 'Oso' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="p3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#111"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="55" rx="28" ry="35" fill="url(#p3)"/><circle cx="50" cy="35" r="20" fill="url(#p3)"/></svg>`, alt: 'Pantera' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="c3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#111"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#c3)"/><circle cx="50" cy="35" r="18" fill="url(#c3)"/></svg>`, alt: 'Cuervo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fbbf24"/><stop offset="100%" style="stop-color:#d97706"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#l3)"/><circle cx="50" cy="35" r="22" fill="url(#l3)"/></svg>`, alt: 'León' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fb923c"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#f4)"/><path d="M50 30 L30 45 L35 55 L50 40 L65 55 L70 45Z" fill="#fff"/></svg>`, alt: 'Zorro' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="o4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#c4b5fd"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs><ellipse cx="50" cy="55" rx="35" ry="40" fill="url(#o4)"/><circle cx="50" cy="35" rx="25" ry="20" fill="url(#o4)"/></svg>`, alt: 'Búho' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#7d8597"/><stop offset="100%" style="stop-color:#5a6275"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e4)"/></svg>`, alt: 'Águila' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fbbf24"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#t4)"/><path d="M20 45 L50 30 L80 45 L75 60 L50 50 L25 60Z" fill="#fff"/></svg>`, alt: 'Tigre' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="d4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#e9d5ff"/><stop offset="100%" style="stop-color:#c084fc"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#d4)"/><path d="M30 35 L35 15 L40 35 M60 35 L65 15 L70 35" fill="#c084fc"/></svg>`, alt: 'Ciervo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="p4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#000"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="55" rx="28" ry="35" fill="url(#p4)"/><circle cx="50" cy="35" r="20" fill="url(#p4)"/></svg>`, alt: 'Pantera' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="w4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#788896"/><stop offset="100%" style="stop-color:#566373"/></linearGradient></defs><path d="M50 15 C35 15 25 30 25 45 C25 55 30 65 40 72 L35 85 L50 80 L65 85 L60 72 C70 65 75 55 75 45 C75 30 65 15 50 15Z" fill="url(#w4)"/></svg>`, alt: 'Lobo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#9ca3af"/><stop offset="100%" style="stop-color:#6b7280"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e5)"/></svg>`, alt: 'Águila' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="b4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#888"/><stop offset="100%" style="stop-color:#666"/></linearGradient></defs><ellipse cx="50" cy="65" rx="35" ry="30" fill="url(#b4)"/><circle cx="50" cy="40" r="30" fill="url(#b4)"/></svg>`, alt: 'Oso' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="o5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ddd6fe"/><stop offset="100%" style="stop-color:#9f7aea"/></linearGradient></defs><ellipse cx="50" cy="55" rx="35" ry="40" fill="url(#o5)"/><circle cx="50" cy="35" rx="25" ry="20" fill="url(#o5)"/></svg>`, alt: 'Búho' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fcd34d"/><stop offset="100%" style="stop-color:#f59e0b"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#l4)"/><circle cx="50" cy="35" r="22" fill="url(#l4)"/></svg>`, alt: 'León' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="f5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fdba74"/><stop offset="100%" style="stop-color:#f97316"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#f5)"/><path d="M50 30 L30 45 L35 55 L50 40 L65 55 L70 45Z" fill="#fff"/></svg>`, alt: 'Zorro' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="c4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#000"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#c4)"/><circle cx="50" cy="35" r="18" fill="url(#c4)"/></svg>`, alt: 'Cuervo' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="t5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fed7aa"/><stop offset="100%" style="stop-color:#fb923c"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#t5)"/><path d="M20 45 L50 30 L80 45 L75 60 L50 50 L25 60Z" fill="#fff"/></svg>`, alt: 'Tigre' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="d5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#f3e8ff"/><stop offset="100%" style="stop-color:#d8b4fe"/></linearGradient></defs><ellipse cx="50" cy="60" rx="25" ry="30" fill="url(#d5)"/><path d="M30 35 L35 15 L40 35 M60 35 L65 15 L70 35" fill="#d8b4fe"/></svg>`, alt: 'Ciervo' }
+            ],
+            [
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="l5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#fef3c7"/><stop offset="100%" style="stop-color:#f59e0b"/></linearGradient></defs><ellipse cx="50" cy="60" rx="30" ry="35" fill="url(#l5)"/><circle cx="50" cy="35" r="22" fill="url(#l5)"/></svg>`, alt: 'León' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="p5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#000"/><stop offset="100%" style="stop-color:#000"/></linearGradient></defs><ellipse cx="50" cy="55" rx="28" ry="35" fill="url(#p5)"/><circle cx="50" cy="35" r="20" fill="url(#p5)"/></svg>`, alt: 'Pantera' },
+                { svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="e6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#d1d5db"/><stop offset="100%" style="stop-color:#9ca3af"/></linearGradient></defs><path d="M50 20 L30 50 L40 45 L35 70 L50 60 L65 70 L60 45 L70 50Z" fill="url(#e6)"/></svg>`, alt: 'Águila' }
+            ]
+        ];
+        
+        const palos = ['♠', '♥', '♦', '♣'];
+        const valores = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'A', 'K', 'Q'];
+        
+        function crearDataURL(svgContent) {
+            return 'data:image/svg+xml,' + encodeURIComponent(svgContent);
+        }
+        
+        let paletaActual = null;
+        
+        function mostrarPaleta(cartaIndex, tipo) {
+            const paleta = document.getElementById(`paleta-${cartaIndex}`);
+            const opciones = paleta.querySelector('.color-options');
+            opciones.innerHTML = '';
+            const colores = tipo === 'borde' ? coloresBorde : coloresFondo;
+            
+            colores.forEach(color => {
+                const btn = document.createElement('div');
+                btn.className = 'color-option';
+                btn.style.background = color;
+                btn.onclick = function() {
+                    aplicarColor(cartaIndex, color, tipo);
+                    paleta.classList.remove('show');
+                };
+                opciones.appendChild(btn);
+            });
+            
+            paleta.classList.toggle('show');
+        }
+        
+        function aplicarColor(cartaIndex, color, tipo) {
+            const carta = document.getElementById(`card-${cartaIndex}`);
+            const cardInner = carta.querySelector('.card-inner');
+            
+            if (tipo === 'borde') {
+                carta.style.borderImage = 'none';
+                carta.style.border = `3px solid ${color}`;
+                carta.style.setProperty('--gold', color);
+                carta.classList.add('card-custom-border');
+                carta.classList.remove('card-original-border');
+                carta.style.setProperty('--selected-border-color', color);
+            } else {
+                cardInner.style.background = color;
+            }
+        }
+        
+        function cambiarFondoCarta(cartaIndex) {
+            const opciones = document.getElementById(`bg-opciones-${cartaIndex}`);
+            opciones.classList.toggle('show');
+        }
+        
+        function aplicarFondoColor(cartaIndex, color) {
+            const carta = document.getElementById(`card-${cartaIndex}`);
+            const cardInner = carta.querySelector('.card-inner');
+            cardInner.style.background = color;
+            document.getElementById(`bg-opciones-${cartaIndex}`).classList.remove('show');
+        }
+        
+        function cambiarFondoImagen(cartaIndex) {
+            const imageInput = document.getElementById('bgImageInput');
+            imageInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const carta = document.getElementById(`card-${cartaIndex}`);
+                        const cardInner = carta.querySelector('.card-inner');
+                        cardInner.style.background = `url(${evt.target.result}) center/cover no-repeat`;
+                        document.getElementById(`bg-opciones-${cartaIndex}`).classList.remove('show');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            imageInput.click();
+        }
+        
+        function cambiarImagen(seccionIndex, cartaIndex) {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const section = document.getElementById(`section-${cartaIndex}-${seccionIndex}`);
+                        section.style.backgroundImage = `url(${evt.target.result})`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            fileInput.click();
+        }
+        
+        function generarCartas() {
+            const grid = document.getElementById('cardsGrid');
+            
+            for (let i = 0; i < 16; i++) {
+                const carta = document.createElement('div');
+                carta.className = 'card card-original-border';
+                carta.id = `card-${i}`;
+                
+                const palo = palos[i % 4];
+                const valor = valores[i];
+                
+                let html = `
+                    <span class="card-corner top-left">${valor}</span>
+                    <span class="suit-symbol suit-top">${palo}</span>
+                    <span class="card-number">${String(i + 1).padStart(2, '0')}</span>
+                    
+                    <div class="color-palette" id="paleta-${i}">
+                        <h4>COLOR DEL BORDE</h4>
+                        <div class="color-options"></div>
+                    </div>
+                    
+                    <div class="bg-menu-options" id="bg-opciones-${i}">
+                        <h4>FONDO DE LA CARTA</h4>
+                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#0d0d1a')">Negro</button>
+                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#1a1a2e')">Azul oscuro</button>
+                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#000000')">Negro puro</button>
+                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#1e3a5f')">Azul marino</button>
+                        <button class="bg-option" onclick="aplicarFondoColor(${i}, '#2d1b1b')">Café oscuro</button>
+                        <button class="bg-option" onclick="cambiarFondoImagen(${i})">🖼️ Elegir imagen</button>
+                    </div>
+                    
+                    <button class="color-menu-btn" onclick="mostrarPaleta(${i}, 'borde')" title="Cambiar color del borde">🎨</button>
+                    <button class="bg-menu-btn" onclick="cambiarFondoCarta(${i})" title="Cambiar fondo de la carta">🎨</button>
+                    
+                    <div class="card-inner">
+                        <div class="outer-border"></div>
+                        <div class="inner-border"></div>
+                `;
+                
+                for (let j = 0; j < 3; j++) {
+                    const animal = animalesPorDefecto[i][j];
+                    const dataURL = crearDataURL(animal.svg);
+                    html += `
+                        <div id="section-${i}-${j}" class="animal-section" style="background-image: url('${dataURL}')">
+                            <button class="change-btn" onclick="cambiarImagen(${j}, ${i})" title="Cambiar imagen">🖼️</button>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    </div>
+                    <span class="card-corner bottom-right">${valor}</span>
+                    <span class="suit-symbol suit-bottom">${palo}</span>
+                `;
+                
+                carta.innerHTML = html;
+                grid.appendChild(carta);
+            }
+        }
+        
+        generarCartas();
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.color-palette') && !e.target.closest('.color-menu-btn')) {
+                document.querySelectorAll('.color-palette').forEach(p => p.classList.remove('show'));
+            }
+            if (!e.target.closest('.bg-menu-options') && !e.target.closest('.bg-menu-btn')) {
+                document.querySelectorAll('.bg-menu-options').forEach(p => p.classList.remove('show'));
+            }
+        });
+    </script>
+</body>
+</html>

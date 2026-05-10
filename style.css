@@ -1,0 +1,473 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap');
+
+:root {
+    --card-width: 6.35cm;
+    --card-height: 8.89cm;
+    --gold: #c9a227;
+    --gold-light: #e8c547;
+    --gold-dark: #8b7020;
+    --dark-navy: #080810;
+    --midnight: #0f0f1f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: 
+        radial-gradient(ellipse at 30% 20%, #1a1a2e 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, #0d0d1a 0%, transparent 50%),
+        linear-gradient(180deg, #050508 0%, #0a0a14 50%, #080810 100%);
+    min-height: 100vh;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: #e8e8e8;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 40px;
+    background: 
+        linear-gradient(135deg, rgba(20, 20, 40, 0.95) 0%, rgba(8, 8, 16, 0.98) 100%),
+        repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(201, 162, 39, 0.03) 30px, rgba(201, 162, 39, 0.03) 31px);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(201, 162, 39, 0.1);
+}
+
+header::before {
+    content: '⚜';
+    display: block;
+    font-size: 2em;
+    color: var(--gold);
+    margin-bottom: 15px;
+    text-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+}
+
+header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2em;
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 6px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #999;
+    font-size: 1em;
+    letter-spacing: 4px;
+    font-weight: 400;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-width), 1fr));
+    gap: 30px;
+    justify-items: center;
+    padding: 20px;
+}
+
+.card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: 
+        radial-gradient(ellipse at 50% 30%, #1a1a2e 0%, #0d0d1a 60%, #080810 100%);
+    border: 3px solid;
+    border-image: linear-gradient(180deg, var(--gold-light), var(--gold), var(--gold-dark)) 1;
+    border-radius: 12px;
+    position: relative;
+    overflow: visible;
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.6),
+        0 0 80px rgba(201, 162, 39, 0.08),
+        inset 0 0 60px rgba(0, 0, 0, 0.5);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 15px 45px rgba(0, 0, 0, 0.7),
+        0 0 100px rgba(201, 162, 39, 0.12),
+        inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(135deg, transparent 40%, rgba(201, 162, 39, 0.05) 50%, transparent 60%),
+        repeating-conic-gradient(from 0deg at 50% 50%, transparent 0deg 10deg, rgba(201, 162, 39, 0.02) 10deg 20deg);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 9px;
+}
+
+.card-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px;
+    position: relative;
+    z-index: 2;
+    background: 
+        radial-gradient(ellipse at 50% 20%, #1a1a2e 0%, #0d0d1a 60%, #080810 100%);
+    border-radius: 6px;
+}
+
+.outer-border {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: none;
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.inner-border {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: none;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.animal-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    border-bottom: none;
+    border: 1px solid var(--gold);
+    margin: 2px;
+    border-radius: 4px;
+}
+
+.animal-section::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, rgba(201, 162, 39, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.change-btn {
+    position: absolute;
+    z-index: 30;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    opacity: 0;
+    border: none;
+    font-size: 1em;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(201, 162, 39, 0.95);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+}
+
+.animal-section:hover .change-btn {
+    opacity: 1;
+}
+
+.change-btn:hover {
+    background: rgba(232, 197, 71, 1);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.color-menu-btn, .bg-menu-btn {
+    position: absolute;
+    z-index: 30;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    opacity: 0;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(201, 162, 39, 0.9);
+    border: 1px solid #fff;
+    border-radius: 4px;
+    font-size: 0.7em;
+}
+
+.card:hover .color-menu-btn,
+.card:hover .bg-menu-btn {
+    opacity: 1;
+}
+
+.color-menu-btn:hover,
+.bg-menu-btn:hover {
+    background: rgba(232, 197, 71, 1);
+    transform: scale(1.1);
+}
+
+.color-menu-btn {
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+}
+
+.bg-menu-btn {
+    bottom: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.color-palette {
+    display: none;
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 10, 20, 0.95);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 12px;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.color-palette.show {
+    display: block;
+}
+
+.color-palette h4 {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75em;
+    margin: 0 0 8px 0;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.color-options {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+}
+
+.color-option {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #fff;
+    transition: transform 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.2);
+    border: 2px solid #fff;
+}
+
+.bg-menu-options {
+    display: none;
+    position: absolute;
+    bottom: 40px;
+    right: 0;
+    background: rgba(10, 10, 20, 0.95);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 12px;
+    z-index: 100;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.bg-menu-options.show {
+    display: block;
+}
+
+.bg-menu-options h4 {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75em;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.bg-option {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(201, 162, 39, 0.3);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.bg-option:hover {
+    background: rgba(201, 162, 39, 0.6);
+}
+
+.card-number {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9em;
+    color: var(--gold-light);
+    font-weight: 600;
+    z-index: 15;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.card-corner {
+    position: absolute;
+    font-size: 1.1em;
+    color: var(--gold);
+    z-index: 15;
+    font-family: 'Cinzel', serif;
+}
+
+.card-corner.top-left {
+    top: 10px;
+    left: 10px;
+}
+
+.card-corner.bottom-right {
+    bottom: 10px;
+    right: 10px;
+    transform: rotate(180deg);
+}
+
+.suit-symbol {
+    position: absolute;
+    font-size: 0.7em;
+    color: var(--gold);
+    opacity: 0.6;
+    z-index: 15;
+}
+
+.suit-top { top: 26px; right: 14px; }
+.suit-bottom { bottom: 26px; left: 14px; transform: rotate(180deg); }
+
+.print-section {
+    text-align: center;
+    margin: 50px auto;
+    padding: 40px;
+    background: 
+        linear-gradient(180deg, rgba(15, 15, 31, 0.95) 0%, rgba(5, 5, 10, 0.98) 100%);
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.print-section h2 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    letter-spacing: 3px;
+}
+
+.print-section p {
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.print-section .specs {
+    font-size: 0.85em;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.8;
+}
+
+.print-button {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+    color: #080810;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.05em;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 25px rgba(201, 162, 39, 0.4);
+    letter-spacing: 2px;
+}
+
+.print-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(201, 162, 39, 0.6);
+}
+
+.instructions {
+    background: rgba(15, 15, 31, 0.8);
+    border: 1px solid rgba(201, 162, 39, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.instructions h3 {
+    font-family: 'Cinzel', serif;
+    color: var(--gold-light);
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.instructions p {
+    color: #777;
+    font-size: 0.9em;
+}
+
+#fileInput, #bgImageInput {
+    display: none;
+}
