@@ -189,12 +189,217 @@
             background: rgba(201, 162, 39, 0.4);
         }
         
+        .menu-divider {
+            height: 1px;
+            background: rgba(201, 162, 39, 0.3);
+            margin: 6px 0;
+        }
+        
+        .menu-submenu {
+            position: relative;
+        }
+        
+        .menu-submenu > span {
+            display: block;
+            padding: 8px 14px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .menu-submenu > span:hover {
+            background: rgba(201, 162, 39, 0.4);
+        }
+        
+        .submenu-options {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: rgba(10, 10, 20, 0.98);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            min-width: 150px;
+            padding: 4px 0;
+            z-index: 1000;
+        }
+        
+        .menu-submenu:hover .submenu-options {
+            display: block;
+        }
+        
+        .pos-btn:hover {
+            background: rgba(201, 162, 39, 0.6);
+        }
+        
+        .crop-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .crop-overlay.active {
+            display: flex;
+        }
+        
+        .crop-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .crop-toolbar {
+            display: flex;
+            gap: 10px;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid var(--gold);
+            align-items: center;
+        }
+        
+        .crop-shape-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(201, 162, 39, 0.2);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .crop-shape-btn:hover {
+            background: rgba(201, 162, 39, 0.5);
+            transform: scale(1.1);
+        }
+        
+        .crop-shape-btn.active {
+            background: var(--gold);
+            color: #000;
+        }
+        
+        .crop-divider {
+            width: 2px;
+            height: 30px;
+            background: rgba(201, 162, 39, 0.4);
+            margin: 0 5px;
+        }
+        
+        .crop-apply-btn, .crop-cancel-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .crop-apply-btn {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border: 2px solid #22c55e;
+            color: #fff;
+        }
+        
+        .crop-apply-btn:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            transform: scale(1.05);
+        }
+        
+        .crop-cancel-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 2px solid #ef4444;
+            color: #fff;
+        }
+        
+        .crop-cancel-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: scale(1.05);
+        }
+        
+        .crop-area {
+            position: relative;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+            border: 3px solid var(--gold);
+            border-radius: 8px;
+        }
+        
+        .crop-frame {
+            position: absolute;
+            border: 2px dashed #fff;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: move;
+            min-width: 50px;
+            min-height: 50px;
+        }
+        
+        .crop-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--gold);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .crop-handle-tl { top: -8px; left: -8px; cursor: nwse-resize; }
+        .crop-handle-tr { top: -8px; right: -8px; cursor: nesw-resize; }
+        .crop-handle-bl { bottom: -8px; left: -8px; cursor: nesw-resize; }
+        .crop-handle-br { bottom: -8px; right: -8px; cursor: nwse-resize; }
+        .crop-handle-t { top: -8px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .crop-handle-b { bottom: -8px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+        .crop-handle-l { left: -8px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+        .crop-handle-r { right: -8px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+        
+        .undo-redo-btns {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 12px;
+        }
+        
+        .undo-btn, .redo-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0d0d1a 100%);
+            border: 2px solid #c9a227;
+            color: #c9a227;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+        }
+        
+        .undo-btn:hover, .redo-btn:hover {
+            background: linear-gradient(135deg, #c9a227 0%, #f59e0b 100%);
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+        }
+        
         @media print {
             @page { size: letter; margin: 0.3in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: #fff !important; padding: 0 !important; }
             .container { max-width: 100% !important; padding: 0 !important; }
-            header, .instructions, .print-section { display: none !important; }
+            header, .instructions, .print-section, .undo-redo-btns { display: none !important; }
             .cards-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
             
             .card {
@@ -236,6 +441,50 @@
     <div id="contextMenu" class="context-menu">
         <div class="context-menu-item" data-action="remove-border">✖ Quitar borde</div>
         <div class="context-menu-item" data-action="add-border">✓ Agregar borde</div>
+        <div class="menu-divider"></div>
+        <div class="menu-submenu">
+            <span>📐 Ajuste ▸</span>
+            <div class="submenu-options">
+                <div class="context-menu-item" data-action="bg-cover">Cover (rellenar)</div>
+                <div class="context-menu-item" data-action="bg-contain">Contain (completa)</div>
+                <div class="context-menu-item" data-action="bg-auto">Auto (original)</div>
+                <div class="context-menu-item" data-action="bg-stretch">Stretch (estirar)</div>
+            </div>
+        </div>
+        <div class="menu-submenu">
+            <span>✂️ Recortar ▸</span>
+            <div class="submenu-options">
+                <div class="context-menu-item" data-action="crop-free">🔲 Libre</div>
+                <div class="context-menu-item" data-action="crop-square">⬜ Cuadrado</div>
+                <div class="context-menu-item" data-action="crop-rect">📐 Rectangular</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Crop Overlay -->
+    <div id="cropOverlay" class="crop-overlay">
+        <div class="crop-container">
+            <div class="crop-toolbar">
+                <button class="crop-shape-btn" data-shape="free" title="Libre">🔲</button>
+                <button class="crop-shape-btn" data-shape="square" title="Cuadrado">⬜</button>
+                <button class="crop-shape-btn" data-shape="rect" title="Rectangular">📐</button>
+                <div class="crop-divider"></div>
+                <button class="crop-apply-btn" id="cropApply">✓ Aplicar</button>
+                <button class="crop-cancel-btn" id="cropCancel">✖ Cancelar</button>
+            </div>
+            <div class="crop-area" id="cropArea">
+                <div class="crop-frame" id="cropFrame">
+                    <div class="crop-handle crop-handle-tl"></div>
+                    <div class="crop-handle crop-handle-tr"></div>
+                    <div class="crop-handle crop-handle-bl"></div>
+                    <div class="crop-handle crop-handle-br"></div>
+                    <div class="crop-handle crop-handle-t"></div>
+                    <div class="crop-handle crop-handle-b"></div>
+                    <div class="crop-handle crop-handle-l"></div>
+                    <div class="crop-handle crop-handle-r"></div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div id="contextMenuNumber" class="context-menu">
@@ -246,7 +495,11 @@
     <div class="container">
         <header>
             <h1>⚜ ANIMALS COLLECTION ⚜</h1>
-            <p>Editor Interactivo - 🖼️ = Imagen | 🎨 = Borde/Fondo</p>
+            <p>Editor Interactivo - 🖼️ = Imagen | 🎨 = Borde/Fondo | ↩️ = Deshacer | ↪️ = Rehacer</p>
+            <div class="undo-redo-btns">
+                <button class="undo-btn" onclick="window.undo()" title="Ctrl+Z">↩️ Deshacer</button>
+                <button class="redo-btn" onclick="window.redo()" title="Ctrl+Y">↪️ Rehacer</button>
+            </div>
         </header>
         
         <div class="instructions">
@@ -374,6 +627,147 @@
         
         let paletaActual = null;
         
+        // Sistema de deshacer/rehacer
+        const MAX_HISTORY = 50;
+        let history = [];
+        let historyIndex = -1;
+        
+        function captureState() {
+            const state = [];
+            for (let i = 0; i < 16; i++) {
+                const card = document.getElementById(`card-${i}`);
+                if (!card) continue;
+                
+                const cardInner = card.querySelector('.card-inner');
+                const cardNumber = card.querySelector('.card-number');
+                const computedCard = window.getComputedStyle(card);
+                const computedCardInner = window.getComputedStyle(cardInner);
+                
+                const cardData = {
+                    cardIndex: i,
+                    borderColor: card.style.border || computedCard.border || '',
+                    borderStyle: card.style.borderImage || computedCard.borderImage || '',
+                    bgColor: cardInner?.style.background || computedCardInner.background || '',
+                    bgImage: cardInner?.style.backgroundImage || computedCardInner.backgroundImage || '',
+                    numberDisplay: cardNumber?.style.display || 'block',
+                    sections: []
+                };
+                
+                for (let j = 0; j < 3; j++) {
+                    const section = document.getElementById(`section-${i}-${j}`);
+                    if (section) {
+                        const computedSection = window.getComputedStyle(section);
+                        cardData.sections.push({
+                            sectionIndex: j,
+                            backgroundImage: section.style.backgroundImage || computedSection.backgroundImage || '',
+                            backgroundSize: section.style.backgroundSize || computedSection.backgroundSize || '',
+                            backgroundPosition: section.style.backgroundPosition || computedSection.backgroundPosition || '',
+                            transform: section.style.transform || '',
+                            border: section.style.border || computedSection.border || '',
+                            borderColor: section.style.borderColor || computedSection.borderColor || ''
+                        });
+                    }
+                }
+                state.push(cardData);
+            }
+            return state;
+        }
+        
+        function saveState() {
+            const state = captureState();
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            history.push(JSON.stringify(state));
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+        }
+        
+        function restoreState(state) {
+            state.forEach(cardData => {
+                const card = document.getElementById(`card-${cardData.cardIndex}`);
+                if (!card) return;
+                
+                if (cardData.borderColor) {
+                    card.style.border = cardData.borderColor;
+                    card.classList.add('card-custom-border');
+                    card.classList.remove('card-original-border');
+                } else {
+                    card.style.border = '';
+                }
+                
+                const cardInner = card.querySelector('.card-inner');
+                if (cardInner) {
+                    if (cardData.bgColor) cardInner.style.background = cardData.bgColor;
+                    else cardInner.style.background = '';
+                    
+                    if (cardData.bgImage) cardInner.style.backgroundImage = cardData.bgImage;
+                    else cardInner.style.backgroundImage = '';
+                }
+                
+                const cardNumber = card.querySelector('.card-number');
+                if (cardNumber && cardData.numberDisplay) {
+                    cardNumber.style.display = cardData.numberDisplay;
+                }
+                
+                cardData.sections.forEach(sec => {
+                    const section = document.getElementById(`section-${cardData.cardIndex}-${sec.sectionIndex}`);
+                    if (section) {
+                        if (sec.backgroundImage) section.style.backgroundImage = sec.backgroundImage;
+                        else section.style.backgroundImage = '';
+                        
+                        if (sec.backgroundSize) section.style.backgroundSize = sec.backgroundSize;
+                        else section.style.backgroundSize = '';
+                        
+                        if (sec.backgroundPosition) section.style.backgroundPosition = sec.backgroundPosition;
+                        else section.style.backgroundPosition = '';
+                        
+                        if (sec.transform) section.style.transform = sec.transform;
+                        else section.style.transform = '';
+                        
+                        if (sec.border) section.style.border = sec.border;
+                        else section.style.border = '';
+                    }
+                });
+            });
+        }
+        
+        window.undo = function() {
+            if (historyIndex > 0 && history[historyIndex - 1]) {
+                historyIndex--;
+                const estado = JSON.parse(history[historyIndex]);
+                restoreState(estado);
+            }
+        };
+        
+        window.redo = function() {
+            if (historyIndex < history.length - 1 && history[historyIndex + 1]) {
+                historyIndex++;
+                const estado = JSON.parse(history[historyIndex]);
+                restoreState(estado);
+            }
+        };
+        
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                window.undo();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+                e.preventDefault();
+                window.redo();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
+                e.preventDefault();
+                window.redo();
+            }
+        });
+        
         function mostrarPaleta(cartaIndex, tipo) {
             const paleta = document.getElementById(`paleta-${cartaIndex}`);
             const opciones = paleta.querySelector('.color-options');
@@ -395,6 +789,7 @@
         }
         
         function aplicarColor(cartaIndex, color, tipo) {
+            saveState();
             const carta = document.getElementById(`card-${cartaIndex}`);
             const cardInner = carta.querySelector('.card-inner');
             
@@ -416,6 +811,7 @@
         }
         
         function aplicarFondoColor(cartaIndex, color) {
+            saveState();
             const carta = document.getElementById(`card-${cartaIndex}`);
             const cardInner = carta.querySelector('.card-inner');
             cardInner.style.background = color;
@@ -424,6 +820,7 @@
         }
         
         function cambiarFondoImagen(cartaIndex) {
+            saveState();
             const imageInput = document.getElementById('bgImageInput');
             imageInput.onchange = function(e) {
                 const file = e.target.files[0];
@@ -447,6 +844,7 @@
         }
         
         function cambiarImagen(seccionIndex, cartaIndex) {
+            saveState();
             const fileInput = document.getElementById('fileInput');
             fileInput.onchange = function(e) {
                 const file = e.target.files[0];
@@ -465,17 +863,18 @@
         }
         
         function eliminarImagen(btn) {
+            saveState();
             const section = btn.closest('.animal-section');
             section.style.backgroundImage = 'none';
         }
         
         function restaurarImagen(btn) {
+            saveState();
             const section = btn.closest('.animal-section');
-            const cartaIndex = parseInt(section.getAttribute('data-carta'));
-            const seccionIndex = parseInt(section.getAttribute('data-seccion'));
-            const animalOriginal = animalesPorDefecto[cartaIndex][seccionIndex];
-            const dataURL = crearDataURL(animalOriginal.svg);
-            section.style.backgroundImage = 'url(' + dataURL + ')';
+            const originalUrl = section.getAttribute('data-original');
+            if (originalUrl) {
+                section.style.backgroundImage = `url('${originalUrl}')`;
+            }
         }
         
         function generarCartas() {
@@ -550,6 +949,15 @@
         }
         
         generarCartas();
+        saveState();
+        
+        // Event listeners para botones restaurar
+        document.querySelectorAll('.restore-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                restaurarImagen(this);
+            });
+        });
         
         // Event listeners para menús contextuales - AGREGADOS DESPUÉS de generar las cartas
         let currentSection = null;
@@ -585,6 +993,7 @@
         document.querySelectorAll('.context-menu-item').forEach(item => {
             item.addEventListener('click', function() {
                 const action = this.getAttribute('data-action');
+                saveState();
                 
                 // Para quitar/agregar borde - usar currentSection
                 if (action === 'remove-border' && currentSection) {
@@ -593,6 +1002,14 @@
                 
                 if (action === 'add-border' && currentSection) {
                     currentSection.style.border = '1px solid var(--gold)';
+                }
+                
+                // Ajuste de imagen
+                if (currentSection) {
+                    if (action === 'bg-cover') currentSection.style.backgroundSize = 'cover';
+                    if (action === 'bg-contain') currentSection.style.backgroundSize = 'contain';
+                    if (action === 'bg-auto') currentSection.style.backgroundSize = 'auto';
+                    if (action === 'bg-stretch') currentSection.style.backgroundSize = '100% 100%';
                 }
                 
                 // Para número
@@ -606,6 +1023,237 @@
                 
                 document.getElementById('contextMenu').classList.remove('show');
                 document.getElementById('contextMenuNumber').classList.remove('show');
+            });
+        });
+        
+        // Crop functionality
+        let cropTarget = null;
+        let cropShape = 'free';
+        let cropData = {
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100
+        };
+        
+        function startCrop(shape) {
+            if (!currentSection) return;
+            
+            cropTarget = currentSection;
+            cropShape = shape;
+            
+            // Get section dimensions and image
+            const rect = cropTarget.getBoundingClientRect();
+            const overlay = document.getElementById('cropOverlay');
+            const cropArea = document.getElementById('cropArea');
+            const cropFrame = document.getElementById('cropFrame');
+            
+            // Get background image
+            const bgImage = window.getComputedStyle(cropTarget).backgroundImage;
+            cropArea.style.backgroundImage = bgImage;
+            cropArea.style.backgroundSize = window.getComputedStyle(cropTarget).backgroundSize;
+            cropArea.style.backgroundRepeat = 'no-repeat';
+            
+            // Set crop area size
+            const maxWidth = Math.min(rect.width, 400);
+            const maxHeight = Math.min(rect.height, 400);
+            
+            if (shape === 'square') {
+                const size = Math.min(maxWidth, maxHeight);
+                cropData.width = size;
+                cropData.height = size;
+            } else if (shape === 'rect') {
+                cropData.width = maxWidth;
+                cropData.height = maxWidth * 9 / 16;
+                if (cropData.height > maxHeight) {
+                    cropData.height = maxHeight;
+                    cropData.width = maxHeight * 16 / 9;
+                }
+            } else {
+                cropData.width = maxWidth * 0.8;
+                cropData.height = maxHeight * 0.8;
+            }
+            
+            cropData.x = (maxWidth - cropData.width) / 2;
+            cropData.y = (maxHeight - cropData.height) / 2;
+            
+            cropArea.style.width = maxWidth + 'px';
+            cropArea.style.height = maxHeight + 'px';
+            
+            updateCropFrame();
+            
+            // Update active shape button
+            document.querySelectorAll('.crop-shape-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-shape') === shape);
+            });
+            
+            overlay.classList.add('active');
+            
+            // Add event listeners for dragging/resizing
+            setupCropEvents();
+        }
+        
+        function updateCropFrame() {
+            const cropFrame = document.getElementById('cropFrame');
+            cropFrame.style.left = cropData.x + 'px';
+            cropFrame.style.top = cropData.y + 'px';
+            cropFrame.style.width = cropData.width + 'px';
+            cropFrame.style.height = cropData.height + 'px';
+        }
+        
+        function setupCropEvents() {
+            const cropFrame = document.getElementById('cropFrame');
+            let isDragging = false;
+            let isResizing = false;
+            let resizeHandle = '';
+            let startX, startY, startW, startH, startLeft, startTop;
+            
+            const onMouseDown = (e) => {
+                e.preventDefault();
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                if (e.target.classList.contains('crop-handle')) {
+                    isResizing = true;
+                    resizeHandle = e.target.classList[1];
+                    startW = cropData.width;
+                    startH = cropData.height;
+                    startLeft = cropData.x;
+                    startTop = cropData.y;
+                } else if (e.target === cropFrame || e.target.closest('.crop-frame')) {
+                    isDragging = true;
+                    startLeft = cropData.x;
+                    startTop = cropData.y;
+                }
+            };
+            
+            const onMouseMove = (e) => {
+                if (!isDragging && !isResizing) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                const cropArea = document.getElementById('cropArea');
+                const maxW = cropArea.offsetWidth;
+                const maxH = cropArea.offsetHeight;
+                
+                if (isDragging) {
+                    let newX = startLeft + dx;
+                    let newY = startTop + dy;
+                    newX = Math.max(0, Math.min(newX, maxW - cropData.width));
+                    newY = Math.max(0, Math.min(newY, maxH - cropData.height));
+                    cropData.x = newX;
+                    cropData.y = newY;
+                }
+                
+                if (isResizing) {
+                    if (cropShape === 'square') {
+                        if (resizeHandle.includes('br') || resizeHandle.includes('bl') || resizeHandle.includes('tr') || resizeHandle.includes('tl')) {
+                            const size = Math.max(50, Math.min(startW + dx, startH + dy, maxW - startLeft, maxH - startTop));
+                            cropData.width = size;
+                            cropData.height = size;
+                            if (resizeHandle.includes('tl')) {
+                                cropData.x = startLeft + (startW - size);
+                                cropData.y = startTop + (startH - size);
+                            }
+                        }
+                    } else if (cropShape === 'rect') {
+                        const ratio = 16 / 9;
+                        if (resizeHandle.includes('r') || resizeHandle.includes('l')) {
+                            const newW = Math.max(50, Math.min(startW + dx * (resizeHandle.includes('l') ? -1 : 1), maxW - startLeft));
+                            cropData.width = newW;
+                            cropData.height = newW / ratio;
+                        }
+                        if (resizeHandle.includes('t') || resizeHandle.includes('b')) {
+                            const newH = Math.max(50, Math.min(startH + dy * (resizeHandle.includes('t') ? -1 : 1), maxH - startTop));
+                            cropData.height = newH;
+                            cropData.width = newH * ratio;
+                        }
+                    } else {
+                        if (resizeHandle.includes('r')) cropData.width = Math.max(50, Math.min(startW + dx, maxW - startLeft));
+                        if (resizeHandle.includes('l')) {
+                            const newW = Math.max(50, startW - dx);
+                            cropData.x = startLeft + (startW - newW);
+                            cropData.width = newW;
+                        }
+                        if (resizeHandle.includes('b')) cropData.height = Math.max(50, Math.min(startH + dy, maxH - startTop));
+                        if (resizeHandle.includes('t')) {
+                            const newH = Math.max(50, startH - dy);
+                            cropData.y = startTop + (startH - newH);
+                            cropData.height = newH;
+                        }
+                    }
+                }
+                
+                updateCropFrame();
+            };
+            
+            const onMouseUp = () => {
+                isDragging = false;
+                isResizing = false;
+            };
+            
+            cropFrame.addEventListener('mousedown', onMouseDown);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+        
+        function applyCrop() {
+            if (!cropTarget) return;
+            
+            saveState();
+            
+            const cropArea = document.getElementById('cropArea');
+            const areaWidth = cropArea.offsetWidth;
+            const areaHeight = cropArea.offsetHeight;
+            
+            // Calculate percentage position
+            const posX = (cropData.x / areaWidth) * 100;
+            const posY = (cropData.y / areaHeight) * 100;
+            const sizeX = (cropData.width / areaWidth) * 100;
+            const sizeY = (cropData.height / areaHeight) * 100;
+            
+            cropTarget.style.backgroundSize = `${sizeX}% ${sizeY}%`;
+            cropTarget.style.backgroundPosition = `${posX}% ${posY}%`;
+            
+            closeCrop();
+        }
+        
+        function closeCrop() {
+            document.getElementById('cropOverlay').classList.remove('active');
+            cropTarget = null;
+        }
+        
+        // Crop button events
+        document.querySelectorAll('.crop-shape-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const shape = this.getAttribute('data-shape');
+                cropShape = shape;
+                startCrop(shape);
+            });
+        });
+        
+        document.getElementById('cropApply').addEventListener('click', applyCrop);
+        document.getElementById('cropCancel').addEventListener('click', closeCrop);
+        
+        // Close crop when clicking outside
+        document.getElementById('cropOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCrop();
+            }
+        });
+        
+        // Crop menu items
+        document.querySelectorAll('.context-menu-item[data-action^="crop-"]').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const shapeMap = {
+                    'crop-free': 'free',
+                    'crop-square': 'square',
+                    'crop-rect': 'rect'
+                };
+                if (shapeMap[action]) {
+                    startCrop(shapeMap[action]);
+                }
             });
         });
         
