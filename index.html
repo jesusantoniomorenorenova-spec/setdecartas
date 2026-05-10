@@ -33,6 +33,56 @@
         .animal-section:hover .change-btn { opacity: 1; }
         .change-btn:hover { background: rgba(232, 197, 71, 1); transform: translate(-50%, -50%) scale(1.1); }
         
+        .delete-btn {
+            position: absolute;
+            z-index: 30;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            opacity: 0;
+            border: none;
+            font-size: 0.9em;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background: rgba(220, 38, 38, 0.95);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+        }
+        
+        .animal-section:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { background: rgba(185, 28, 28, 1); transform: translateY(-50%) scale(1.1); }
+        
+        .restore-btn {
+            position: absolute;
+            z-index: 30;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            opacity: 0;
+            border: none;
+            font-size: 0.9em;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(34, 197, 94, 0.95);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+        }
+        
+        .animal-section:hover .restore-btn { opacity: 1; }
+        .restore-btn:hover { background: rgba(22, 163, 74, 1); transform: translateY(-50%) scale(1.1); }
+        
         .color-menu-btn, .bg-menu-btn {
             position: absolute;
             z-index: 30;
@@ -111,6 +161,34 @@
         
         .card { position: relative; }
         
+        .context-menu {
+            display: none;
+            position: fixed;
+            background: rgba(10, 10, 20, 0.95);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            min-width: 150px;
+        }
+        
+        .context-menu.show {
+            display: block;
+        }
+        
+        .context-menu-item {
+            padding: 10px 16px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background: rgba(201, 162, 39, 0.4);
+        }
+        
         @media print {
             @page { size: letter; margin: 0.3in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -127,7 +205,8 @@
                 box-shadow: none !important;
                 border-radius: 8px !important;
                 overflow: hidden !important;
-                border: 3px solid #c9a227 !important;
+                background: var(--card-bg-color, #fff) !important;
+                border: var(--card-border-color, #c9a227) 3px solid !important;
             }
             
             .card-inner { 
@@ -135,13 +214,17 @@
             }
             
             .animal-section { 
-                border: 1px solid #c9a227 !important; 
                 border-radius: 3px !important;
                 margin: 2px !important;
             }
             
+            .animal-section img {
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
+            }
+            
             .animal-section::before { display: none !important; }
-            .change-btn, .color-menu-btn, .bg-menu-btn, .color-palette, .bg-menu-options { display: none !important; }
+            .change-btn, .delete-btn, .restore-btn, .color-menu-btn, .bg-menu-btn, .color-palette, .bg-menu-options, .context-menu { display: none !important; }
             .card-number { color: #333 !important; font-size: 10pt !important; }
         }
     </style>
@@ -149,6 +232,16 @@
 <body>
     <input type="file" id="fileInput" accept="image/*">
     <input type="file" id="bgImageInput" accept="image/*">
+    
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" data-action="remove-border">✖ Quitar borde</div>
+        <div class="context-menu-item" data-action="add-border">✓ Agregar borde</div>
+    </div>
+    
+    <div id="contextMenuNumber" class="context-menu">
+        <div class="context-menu-item" data-action="remove-number">✖ Quitar número</div>
+        <div class="context-menu-item" data-action="show-number">✓ Mostrar número</div>
+    </div>
     
     <div class="container">
         <header>
@@ -344,6 +437,8 @@
                         cardInner.style.backgroundSize = 'cover';
                         cardInner.style.backgroundPosition = 'center';
                         document.getElementById(`bg-opciones-${cartaIndex}`).classList.remove('show');
+                        // Limpiar input para permitir usar la misma imagen después
+                        imageInput.value = '';
                     };
                     reader.readAsDataURL(file);
                 }
@@ -360,11 +455,27 @@
                     reader.onload = function(evt) {
                         const section = document.getElementById(`section-${cartaIndex}-${seccionIndex}`);
                         section.style.backgroundImage = `url(${evt.target.result})`;
+                        // Limpiar input para permitir usar la misma imagen después
+                        fileInput.value = '';
                     };
                     reader.readAsDataURL(file);
                 }
             };
             fileInput.click();
+        }
+        
+        function eliminarImagen(btn) {
+            const section = btn.closest('.animal-section');
+            section.style.backgroundImage = 'none';
+        }
+        
+        function restaurarImagen(btn) {
+            const section = btn.closest('.animal-section');
+            const cartaIndex = parseInt(section.getAttribute('data-carta'));
+            const seccionIndex = parseInt(section.getAttribute('data-seccion'));
+            const animalOriginal = animalesPorDefecto[cartaIndex][seccionIndex];
+            const dataURL = crearDataURL(animalOriginal.svg);
+            section.style.backgroundImage = 'url(' + dataURL + ')';
         }
         
         function generarCartas() {
@@ -421,8 +532,10 @@
                     const animal = animalesPorDefecto[i][j];
                     const dataURL = crearDataURL(animal.svg);
                     html += `
-                        <div id="section-${i}-${j}" class="animal-section" style="background-image: url('${dataURL}')">
-                            <button class="change-btn" onclick="cambiarImagen(${j}, ${i})" title="Cambiar imagen">🖼️</button>
+                        <div id="section-${i}-${j}" class="animal-section" data-carta="${i}" data-seccion="${j}" data-original="${dataURL}" style="background-image: url('${dataURL}')">
+                            <button class="change-btn" onclick="cambiarImagen(${j}, ${i})" title="Cambiar">🖼️</button>
+                            <button class="delete-btn" onclick="eliminarImagen(this)" title="Quitar">🗑️</button>
+                            <button class="restore-btn" onclick="restaurarImagen(this)" title="Restaurar">🔄</button>
                         </div>
                     `;
                 }
@@ -438,6 +551,65 @@
         
         generarCartas();
         
+        // Event listeners para menús contextuales - AGREGADOS DESPUÉS de generar las cartas
+        let currentSection = null;
+        let currentCardNumber = null;
+        
+        document.querySelectorAll('.animal-section').forEach(section => {
+            section.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                currentSection = this;
+                const menu = document.getElementById('contextMenu');
+                menu.currentSection = this;
+                const parts = this.id.split('-');
+                menu.setAttribute('data-section-id', this.id);
+                menu.setAttribute('data-carta', parts[1]);
+                menu.setAttribute('data-seccion', parts[2]);
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.classList.add('show');
+            });
+        });
+        
+        document.querySelectorAll('.card-number').forEach(number => {
+            number.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                currentCardNumber = this;
+                const menu = document.getElementById('contextMenuNumber');
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.classList.add('show');
+            });
+        });
+        
+        document.querySelectorAll('.context-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                
+                // Para quitar/agregar borde - usar currentSection
+                if (action === 'remove-border' && currentSection) {
+                    currentSection.style.border = 'none';
+                }
+                
+                if (action === 'add-border' && currentSection) {
+                    currentSection.style.border = '1px solid var(--gold)';
+                }
+                
+                // Para número
+                if (action === 'remove-number' && currentCardNumber) {
+                    currentCardNumber.style.display = 'none';
+                }
+                
+                if (action === 'show-number' && currentCardNumber) {
+                    currentCardNumber.style.display = 'block';
+                }
+                
+                document.getElementById('contextMenu').classList.remove('show');
+                document.getElementById('contextMenuNumber').classList.remove('show');
+            });
+        });
+        
+        // Cerrar menús al hacer click
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.color-palette') && !e.target.closest('.color-menu-btn')) {
                 document.querySelectorAll('.color-palette').forEach(p => p.classList.remove('show'));
@@ -445,6 +617,8 @@
             if (!e.target.closest('.bg-menu-options') && !e.target.closest('.bg-menu-btn')) {
                 document.querySelectorAll('.bg-menu-options').forEach(p => p.classList.remove('show'));
             }
+            document.getElementById('contextMenu').classList.remove('show');
+            document.getElementById('contextMenuNumber').classList.remove('show');
         });
     </script>
 </body>
