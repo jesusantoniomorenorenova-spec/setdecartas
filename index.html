@@ -439,12 +439,73 @@
             box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
         }
         
+        .import-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 10px;
+            border: 2px solid var(--gold);
+        }
+        
+        .import-btn {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0d0d1a 100%);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+        }
+        
+        .import-btn:hover {
+            background: linear-gradient(135deg, #c9a227 0%, #f59e0b 100%);
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(201, 162, 39, 0.5);
+        }
+        
+        .animal-count-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            font-size: 14px;
+        }
+        
+        .count-btn {
+            background: rgba(201, 162, 39, 0.2);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .count-btn:hover {
+            background: rgba(201, 162, 39, 0.5);
+        }
+        
+        .count-btn.active {
+            background: var(--gold);
+            color: #000;
+        }
+        
         @media print {
             @page { size: letter; margin: 0.3in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: #fff !important; padding: 0 !important; }
             .container { max-width: 100% !important; padding: 0 !important; }
-            header, .instructions, .print-section, .undo-redo-btns { display: none !important; }
+            header, .instructions, .print-section, .undo-redo-btns, .import-section { display: none !important; }
             .cards-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
             
             .card {
@@ -588,6 +649,17 @@
         <div class="instructions">
             <h3>⚜ Cómo Usar ⚜</h3>
             <p>🖼️ Cambiar imagen | 🎨 (abajo) = Color del borde | 🎨 (esquina) = Color/imagen del fondo</p>
+        </div>
+        
+        <div class="import-section">
+            <button class="import-btn" onclick="document.getElementById('importInput').click()">📁 Importar Imágenes</button>
+            <input type="file" id="importInput" accept="image/*" multiple style="display:none" onchange="importImages(this)">
+            <div class="animal-count-selector">
+                <span>Animales por tarjeta:</span>
+                <button class="count-btn active" data-count="1" onclick="setGlobalAnimalCount(1)">1</button>
+                <button class="count-btn" data-count="2" onclick="setGlobalAnimalCount(2)">2</button>
+                <button class="count-btn" data-count="3" onclick="setGlobalAnimalCount(3)">3</button>
+            </div>
         </div>
         
         <div class="cards-grid" id="cardsGrid"></div>
@@ -1071,6 +1143,7 @@
                 cardInner.style.display = 'flex';
                 cardInner.style.justifyContent = 'center';
                 cardInner.style.alignItems = 'center';
+                cardInner.style.flexDirection = 'row';
                 sections.forEach(s => {
                     s.style.width = '100%';
                     s.style.height = '100%';
@@ -1085,13 +1158,118 @@
                     s.style.height = '50%';
                 });
             } else {
-                cardInner.style.display = 'grid';
-                cardInner.style.justifyContent = 'normal';
-                cardInner.style.alignItems = 'normal';
+                cardInner.style.display = 'flex';
+                cardInner.style.flexDirection = 'column';
+                cardInner.style.justifyContent = 'center';
+                cardInner.style.alignItems = 'center';
                 sections.forEach(s => {
-                    s.style.width = '33.33%';
+                    s.style.width = '100%';
                     s.style.height = '33.33%';
                 });
+            }
+        }
+        
+        function setGlobalAnimalCount(count) {
+            globalAnimalCount = count;
+            document.querySelectorAll('.count-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.getAttribute('data-count')) === count);
+            });
+        }
+        
+        function importImages(input) {
+            const files = input.files;
+            if (files.length === 0) return;
+            
+            saveState();
+            
+            // Convertir FileList a array y mezclar aleatoriamente
+            const filesArray = Array.from(files);
+            shuffleArray(filesArray);
+            
+            // Recolectar secciones que NO tienen data-custom (están vacías)
+            const emptySections = [];
+            
+            for (let cardIndex = 0; cardIndex < 16; cardIndex++) {
+                const carta = document.getElementById(`card-${cardIndex}`);
+                const sections = carta.querySelectorAll('.animal-section');
+                const cardInner = carta.querySelector('.card-inner');
+                
+                // Configurar la cantidad de animales para esta tarjeta
+                for (let i = 0; i < 3; i++) {
+                    if (i < globalAnimalCount) {
+                        sections[i].style.display = 'flex';
+                        
+                        // Solo agregar si NO tiene data-custom
+                        if (!sections[i].hasAttribute('data-custom')) {
+                            emptySections.push({cardIndex, sectionIndex: i});
+                        }
+                    } else {
+                        sections[i].style.display = 'none';
+                    }
+                }
+                
+                // Ajustar el layout según la cantidad
+                if (globalAnimalCount === 1) {
+                    cardInner.style.display = 'flex';
+                    cardInner.style.flexDirection = 'row';
+                    cardInner.style.justifyContent = 'center';
+                    cardInner.style.alignItems = 'center';
+                    sections.forEach(s => {
+                        s.style.width = '100%';
+                        s.style.height = '100%';
+                    });
+                } else if (globalAnimalCount === 2) {
+                    cardInner.style.display = 'flex';
+                    cardInner.style.flexDirection = 'column';
+                    cardInner.style.justifyContent = 'center';
+                    cardInner.style.alignItems = 'center';
+                    sections.forEach(s => {
+                        s.style.width = '100%';
+                        s.style.height = '50%';
+                    });
+                } else {
+                    cardInner.style.display = 'flex';
+                    cardInner.style.flexDirection = 'column';
+                    cardInner.style.justifyContent = 'center';
+                    cardInner.style.alignItems = 'center';
+                    sections.forEach(s => {
+                        s.style.width = '100%';
+                        s.style.height = '33.33%';
+                    });
+                }
+            }
+            
+            // Asignar imágenes solo a las secciones sin data-custom
+            let imageIndex = 0;
+            
+            emptySections.forEach(({cardIndex, sectionIndex}) => {
+                if (imageIndex < filesArray.length) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const section = document.getElementById(`section-${cardIndex}-${sectionIndex}`);
+                        if (section) {
+                            section.style.backgroundImage = `url(${e.target.result})`;
+                            section.style.backgroundSize = 'cover';
+                            section.style.backgroundPosition = 'center';
+                            section.setAttribute('data-custom', 'true');
+                        }
+                    };
+                    reader.readAsDataURL(filesArray[imageIndex]);
+                    imageIndex++;
+                }
+            });
+            
+            // Mostrar mensaje de éxito
+            alert(`${imageIndex} imágenes importadas`);
+            
+            // Limpiar el input
+            input.value = '';
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
         }
         
@@ -1105,6 +1283,9 @@
                     reader.onload = function(evt) {
                         const section = document.getElementById(`section-${cartaIndex}-${seccionIndex}`);
                         section.style.backgroundImage = `url(${evt.target.result})`;
+                        section.style.backgroundSize = 'cover';
+                        section.style.backgroundPosition = 'center';
+                        section.setAttribute('data-custom', 'true');
                         // Limpiar input para permitir usar la misma imagen después
                         fileInput.value = '';
                     };
@@ -1118,6 +1299,7 @@
             saveState();
             const section = btn.closest('.animal-section');
             section.style.backgroundImage = 'none';
+            section.removeAttribute('data-custom');
         }
         
         function restaurarImagen(btn) {
@@ -1126,6 +1308,7 @@
             const originalUrl = section.getAttribute('data-original');
             if (originalUrl) {
                 section.style.backgroundImage = `url('${originalUrl}')`;
+                section.removeAttribute('data-custom');
             }
         }
         
@@ -1266,6 +1449,7 @@
         // Event listeners para menús contextuales - AGREGADOS DESPUÉS de generar las cartas
         let currentSection = null;
         let currentCard = null;
+        let globalAnimalCount = 3;
         let currentCardNumber = null;
         
         document.querySelectorAll('.animal-section').forEach(section => {
@@ -1330,14 +1514,17 @@
                 if (action === 'animals-1' && currentCard) {
                     const cardIndex = parseInt(currentCard.id.replace('card-', ''));
                     setAnimalCount(cardIndex, 1);
+                    setGlobalAnimalCount(1);
                 }
                 if (action === 'animals-2' && currentCard) {
                     const cardIndex = parseInt(currentCard.id.replace('card-', ''));
                     setAnimalCount(cardIndex, 2);
+                    setGlobalAnimalCount(2);
                 }
                 if (action === 'animals-3' && currentCard) {
                     const cardIndex = parseInt(currentCard.id.replace('card-', ''));
                     setAnimalCount(cardIndex, 3);
+                    setGlobalAnimalCount(3);
                 }
                 
                 // Para quitar/agregar borde - usar currentSection
