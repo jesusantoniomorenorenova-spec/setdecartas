@@ -161,6 +161,51 @@
         
         .card { position: relative; }
         
+        .back-cards-section {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 3px solid var(--gold);
+        }
+        
+        .back-section-title {
+            text-align: center;
+            color: var(--gold);
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+        }
+        
+        .back-section-title-print {
+            display: none;
+        }
+        
+        @media print {
+            .back-section-title { display: none; }
+            .back-section-title-print { 
+                display: block !important;
+                text-align: center;
+                color: #333;
+                font-size: 18pt;
+                margin: 20px 0 10px 0;
+                font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+            }
+            .back-section-subtitle { display: none; }
+        }
+        
+        .back-section-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            justify-items: center;
+        }
+        
         .context-menu {
             display: none;
             position: fixed;
@@ -414,6 +459,35 @@
                 border: 3px solid !important;
             }
             
+            .card-back {
+                width: 2.5in !important;
+                height: 3.5in !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                box-shadow: none !important;
+                border-radius: 8px !important;
+                overflow: hidden !important;
+            }
+            
+            .card-back-inner {
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 5px !important;
+            }
+            
+            .back-cards-section {
+                page-break-before: always;
+                margin-top: 20px;
+            }
+            
+            .back-cards-section h2 {
+                display: block !important;
+                text-align: center;
+                color: #333;
+                font-size: 18pt;
+                margin-bottom: 10px;
+            }
+            
             .card-inner { 
                 border-radius: 4px !important;
             }
@@ -439,6 +513,15 @@
     <input type="file" id="bgImageInput" accept="image/*">
     
     <div id="contextMenu" class="context-menu">
+        <div class="menu-submenu animal-count-menu">
+            <span>🐾 Animales ▸</span>
+            <div class="submenu-options">
+                <div class="context-menu-item" data-action="animals-1">🦁 1 animal</div>
+                <div class="context-menu-item" data-action="animals-2">🦁🦁 2 animales</div>
+                <div class="context-menu-item" data-action="animals-3">🦁🦁🦁 3 animales</div>
+            </div>
+        </div>
+        <div class="menu-divider"></div>
         <div class="context-menu-item" data-action="remove-border">✖ Quitar borde</div>
         <div class="context-menu-item" data-action="add-border">✓ Agregar borde</div>
         <div class="menu-divider"></div>
@@ -508,6 +591,13 @@
         </div>
         
         <div class="cards-grid" id="cardsGrid"></div>
+        
+        <div class="back-cards-section">
+            <h2 class="back-section-title">⚜ PARTE TRASERA ⚜</h2>
+            <h2 class="back-section-title-print">PARTE TRASERA</h2>
+            <p class="back-section-subtitle">Click derecho para personalizar</p>
+            <div class="cards-grid" id="cardsBackGrid"></div>
+        </div>
         
         <div class="print-section">
             <h2>🖨️ IMPRIMIR / EXPORTAR PDF</h2>
@@ -650,8 +740,19 @@
                     bgColor: cardInner?.style.background || computedCardInner.background || '',
                     bgImage: cardInner?.style.backgroundImage || computedCardInner.backgroundImage || '',
                     numberDisplay: cardNumber?.style.display || 'block',
-                    sections: []
+                    sections: [],
+                    animalCount: 3
                 };
+                
+                // Contar cuántos animales están visibles
+                let visibleCount = 0;
+                for (let j = 0; j < 3; j++) {
+                    const section = document.getElementById(`section-${i}-${j}`);
+                    if (section && section.style.display !== 'none') {
+                        visibleCount++;
+                    }
+                }
+                cardData.animalCount = visibleCount || 3;
                 
                 for (let j = 0; j < 3; j++) {
                     const section = document.getElementById(`section-${i}-${j}`);
@@ -668,6 +769,20 @@
                         });
                     }
                 }
+                
+                // Capturar tarjeta trasera
+                const cardBack = document.getElementById(`card-back-${i}`);
+                if (cardBack) {
+                    const cardBackInner = cardBack.querySelector('.card-back-inner');
+                    const computedCardBack = window.getComputedStyle(cardBack);
+                    const computedCardBackInner = window.getComputedStyle(cardBackInner);
+                    
+                    cardData.backBorder = cardBack.style.border || computedCardBack.border || '';
+                    cardData.backBgColor = cardBackInner?.style.background || computedCardBackInner.background || '';
+                    cardData.backBgImage = cardBackInner?.style.backgroundImage || computedCardBackInner.backgroundImage || '';
+                    cardData.backBgSize = cardBackInner?.style.backgroundSize || computedCardBackInner.backgroundSize || '';
+                }
+                
                 state.push(cardData);
             }
             return state;
@@ -732,6 +847,35 @@
                         else section.style.border = '';
                     }
                 });
+                
+                // Restaurar cantidad de animales
+                if (cardData.animalCount) {
+                    setAnimalCount(cardData.cardIndex, cardData.animalCount);
+                }
+                
+                // Restaurar tarjeta trasera
+                const cardBack = document.getElementById(`card-back-${cardData.cardIndex}`);
+                if (cardBack) {
+                    if (cardData.backBorder) {
+                        cardBack.style.border = cardData.backBorder;
+                        cardBack.classList.add('card-custom-border');
+                        cardBack.classList.remove('card-original-border');
+                    } else {
+                        cardBack.style.border = '';
+                    }
+                    
+                    const cardBackInner = cardBack.querySelector('.card-back-inner');
+                    if (cardBackInner) {
+                        if (cardData.backBgColor) cardBackInner.style.background = cardData.backBgColor;
+                        else cardBackInner.style.background = '';
+                        
+                        if (cardData.backBgImage) cardBackInner.style.backgroundImage = cardData.backBgImage;
+                        else cardBackInner.style.backgroundImage = '';
+                        
+                        if (cardData.backBgSize) cardBackInner.style.backgroundSize = cardData.backBgSize;
+                        else cardBackInner.style.backgroundSize = '';
+                    }
+                }
             });
         }
         
@@ -843,6 +987,114 @@
             imageInput.click();
         }
         
+        // Funciones para tarjetas traseras
+        function cambiarFondoCartaBack(cartaIndex) {
+            const opciones = document.getElementById(`bg-opciones-back-${cartaIndex}`);
+            opciones.classList.toggle('show');
+        }
+        
+        function aplicarFondoColorBack(cartaIndex, color) {
+            saveState();
+            const carta = document.getElementById(`card-back-${cartaIndex}`);
+            const cardInner = carta.querySelector('.card-back-inner');
+            cardInner.style.background = color;
+            document.getElementById(`bg-opciones-back-${cartaIndex}`).classList.remove('show');
+        }
+        
+        function cambiarFondoImagenBack(cartaIndex) {
+            saveState();
+            const imageInput = document.getElementById('bgImageInput');
+            imageInput.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const carta = document.getElementById(`card-back-${cartaIndex}`);
+                        const cardInner = carta.querySelector('.card-back-inner');
+                        const imgUrl = evt.target.result;
+                        cardInner.style.backgroundImage = `url(${imgUrl})`;
+                        cardInner.style.backgroundSize = 'cover';
+                        cardInner.style.backgroundPosition = 'center';
+                        document.getElementById(`bg-opciones-back-${cartaIndex}`).classList.remove('show');
+                        imageInput.value = '';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            imageInput.click();
+        }
+        
+        function mostrarPaletaBack(cartaIndex, tipo) {
+            const paleta = document.getElementById(`paleta-back-${cartaIndex}`);
+            const opciones = paleta.querySelector('.color-options');
+            opciones.innerHTML = '';
+            
+            coloresBorde.forEach(color => {
+                const btn = document.createElement('div');
+                btn.className = 'color-option';
+                btn.style.background = color;
+                btn.onclick = function() {
+                    aplicarColorBack(cartaIndex, color);
+                    paleta.classList.remove('show');
+                };
+                opciones.appendChild(btn);
+            });
+            
+            paleta.classList.toggle('show');
+        }
+        
+        function aplicarColorBack(cartaIndex, color) {
+            saveState();
+            const carta = document.getElementById(`card-back-${cartaIndex}`);
+            carta.style.borderImage = 'none';
+            carta.style.border = `3px solid ${color}`;
+            carta.classList.add('card-custom-border');
+            carta.classList.remove('card-original-border');
+        }
+        
+        function setAnimalCount(cartaIndex, count) {
+            saveState();
+            const carta = document.getElementById(`card-${cartaIndex}`);
+            const sections = carta.querySelectorAll('.animal-section');
+            
+            for (let i = 0; i < 3; i++) {
+                if (i < count) {
+                    sections[i].style.display = 'flex';
+                } else {
+                    sections[i].style.display = 'none';
+                }
+            }
+            
+            // Ajustar el grid/flex según la cantidad
+            const cardInner = carta.querySelector('.card-inner');
+            if (count === 1) {
+                cardInner.style.display = 'flex';
+                cardInner.style.justifyContent = 'center';
+                cardInner.style.alignItems = 'center';
+                sections.forEach(s => {
+                    s.style.width = '100%';
+                    s.style.height = '100%';
+                });
+            } else if (count === 2) {
+                cardInner.style.display = 'flex';
+                cardInner.style.flexDirection = 'column';
+                cardInner.style.justifyContent = 'center';
+                cardInner.style.alignItems = 'center';
+                sections.forEach(s => {
+                    s.style.width = '100%';
+                    s.style.height = '50%';
+                });
+            } else {
+                cardInner.style.display = 'grid';
+                cardInner.style.justifyContent = 'normal';
+                cardInner.style.alignItems = 'normal';
+                sections.forEach(s => {
+                    s.style.width = '33.33%';
+                    s.style.height = '33.33%';
+                });
+            }
+        }
+        
         function cambiarImagen(seccionIndex, cartaIndex) {
             saveState();
             const fileInput = document.getElementById('fileInput');
@@ -948,7 +1200,59 @@
             }
         }
         
+        function generarCartasTraseras() {
+            const gridBack = document.getElementById('cardsBackGrid');
+            
+            for (let i = 0; i < 16; i++) {
+                const cartaBack = document.createElement('div');
+                cartaBack.className = 'card card-back card-original-border';
+                cartaBack.id = `card-back-${i}`;
+                
+                let htmlBack = `
+                    <span class="card-number">${String(i + 1).padStart(2, '0')}</span>
+                    
+                    <div class="color-palette" id="paleta-back-${i}">
+                        <h4>COLOR DEL BORDE</h4>
+                        <div class="color-options"></div>
+                    </div>
+                    
+                    <div class="bg-menu-options" id="bg-opciones-back-${i}">
+                        <h4>FONDO DE LA CARTA</h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 8px;">
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0d0d1a;" onclick="aplicarFondoColorBack(${i}, '#0d0d1a')" title="Negro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1a1a2e;" onclick="aplicarFondoColorBack(${i}, '#1a1a2e')" title="Azul oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #000000;" onclick="aplicarFondoColorBack(${i}, '#000000')" title="Negro puro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1e3a5f;" onclick="aplicarFondoColorBack(${i}, '#1e3a5f')" title="Azul marino"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #2d1b1b;" onclick="aplicarFondoColorBack(${i}, '#2d1b1b')" title="Café"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0f172a;" onclick="aplicarFondoColorBack(${i}, '#0f172a')" title="Azul noche"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1c1917;" onclick="aplicarFondoColorBack(${i}, '#1c1917')" title="Gris oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0c4a6e;" onclick="aplicarFondoColorBack(${i}, '#0c4a6e')" title="Azul profundo"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #7f1d1d;" onclick="aplicarFondoColorBack(${i}, '#7f1d1d')" title="Rojo oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #14532d;" onclick="aplicarFondoColorBack(${i}, '#14532d')" title="Verde oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #581c87;" onclick="aplicarFondoColorBack(${i}, '#581c87')" title="Morado"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #9a3412;" onclick="aplicarFondoColorBack(${i}, '#9a3412')" title="Naranja oscuro"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #be185d;" onclick="aplicarFondoColorBack(${i}, '#be185d')" title="Rosa"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #0f766e;" onclick="aplicarFondoColorBack(${i}, '#0f766e')" title="Verde"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #1e40af;" onclick="aplicarFondoColorBack(${i}, '#1e40af')" title="Azul real"></button>
+                            <button class="color-option" style="width: 100%; height: 20px; background: #f59e0b;" onclick="aplicarFondoColorBack(${i}, '#f59e0b')" title="Dorado"></button>
+                        </div>
+                        <button class="bg-option" style="width: 100%; text-align: center;" onclick="cambiarFondoImagenBack(${i})">🖼️ Elegir imagen</button>
+                    </div>
+                    
+                    <button class="color-menu-btn" onclick="mostrarPaletaBack(${i}, 'borde')" title="Cambiar color del borde">🎨</button>
+                    <button class="bg-menu-btn" onclick="cambiarFondoCartaBack(${i})" title="Cambiar fondo de la carta">🎨</button>
+                    
+                    <div class="card-inner card-back-inner" style="background: #1a1a2e;">
+                    </div>
+                `;
+                
+                cartaBack.innerHTML = htmlBack;
+                gridBack.appendChild(cartaBack);
+            }
+        }
+        
         generarCartas();
+        generarCartasTraseras();
         saveState();
         
         // Event listeners para botones restaurar
@@ -961,6 +1265,7 @@
         
         // Event listeners para menús contextuales - AGREGADOS DESPUÉS de generar las cartas
         let currentSection = null;
+        let currentCard = null;
         let currentCardNumber = null;
         
         document.querySelectorAll('.animal-section').forEach(section => {
@@ -990,10 +1295,50 @@
             });
         });
         
+        // Event listeners para tarjetas completas (no traseras) - click derecho para menú de animales
+        document.querySelectorAll('.card:not(.card-back)').forEach(card => {
+            card.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                currentCard = this;
+                const menu = document.getElementById('contextMenu');
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.classList.add('show');
+            });
+        });
+        
+        // Event listeners para tarjetas traseras - click derecho
+        let currentBackSection = null;
+        
+        document.querySelectorAll('.card-back').forEach(cardBack => {
+            cardBack.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                currentBackSection = this;
+                const menu = document.getElementById('contextMenu');
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                menu.classList.add('show');
+            });
+        });
+        
         document.querySelectorAll('.context-menu-item').forEach(item => {
             item.addEventListener('click', function() {
                 const action = this.getAttribute('data-action');
                 saveState();
+                
+                // Cantidad de animales
+                if (action === 'animals-1' && currentCard) {
+                    const cardIndex = parseInt(currentCard.id.replace('card-', ''));
+                    setAnimalCount(cardIndex, 1);
+                }
+                if (action === 'animals-2' && currentCard) {
+                    const cardIndex = parseInt(currentCard.id.replace('card-', ''));
+                    setAnimalCount(cardIndex, 2);
+                }
+                if (action === 'animals-3' && currentCard) {
+                    const cardIndex = parseInt(currentCard.id.replace('card-', ''));
+                    setAnimalCount(cardIndex, 3);
+                }
                 
                 // Para quitar/agregar borde - usar currentSection
                 if (action === 'remove-border' && currentSection) {
@@ -1019,6 +1364,31 @@
                 
                 if (action === 'show-number' && currentCardNumber) {
                     currentCardNumber.style.display = 'block';
+                }
+                
+                // Para tarjetas traseras - el borde se aplica a la tarjeta, no al cuadro interior
+                if (currentBackSection) {
+                    if (action === 'remove-border') {
+                        currentBackSection.style.border = 'none';
+                    }
+                    if (action === 'add-border') {
+                        currentBackSection.style.border = '3px solid var(--gold)';
+                    }
+                    
+                    const inner = currentBackSection.querySelector('.card-back-inner');
+                    if (action === 'bg-cover' && inner) {
+                        inner.style.backgroundSize = 'cover';
+                    }
+                    if (action === 'bg-contain' && inner) {
+                        inner.style.backgroundSize = 'contain';
+                    }
+                    if (action === 'bg-auto' && inner) {
+                        inner.style.backgroundSize = 'auto';
+                    }
+                    if (action === 'bg-stretch' && inner) {
+                        inner.style.backgroundSize = '100% 100%';
+                    }
+                    currentBackSection = null;
                 }
                 
                 document.getElementById('contextMenu').classList.remove('show');
