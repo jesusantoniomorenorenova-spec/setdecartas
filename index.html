@@ -500,12 +500,108 @@
             color: #000;
         }
         
+        .bulk-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--gold);
+            font-size: 14px;
+            margin-left: 15px;
+            padding-left: 15px;
+            border-left: 1px solid rgba(201, 162, 39, 0.3);
+        }
+        
+        .bulk-btn {
+            background: rgba(201, 162, 39, 0.2);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .bulk-btn:hover {
+            background: rgba(201, 162, 39, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .bulk-color-menu {
+            display: none;
+            position: absolute;
+            background: rgba(10, 10, 20, 0.98);
+            border: 2px solid var(--gold);
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+        
+        .bulk-color-menu.active {
+            display: block;
+        }
+        
+        .bulk-color-options {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            max-width: 200px;
+        }
+        
+        .bulk-color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .bulk-color-option:hover {
+            transform: scale(1.2);
+            border-color: #fff;
+        }
+        
+        .bulk-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .bulk-image-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(201, 162, 39, 0.3);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .bulk-image-btn:hover {
+            background: rgba(201, 162, 39, 0.6);
+            transform: scale(1.02);
+        }
+        
         @media print {
             @page { size: letter; margin: 0.3in; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             body { background: #fff !important; padding: 0 !important; }
             .container { max-width: 100% !important; padding: 0 !important; }
-            header, .instructions, .print-section, .undo-redo-btns, .import-section { display: none !important; }
+            header, .instructions, .print-section, .undo-redo-btns, .import-section, .bulk-color-menu { display: none !important; }
             .cards-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 8px !important; }
             
             .card {
@@ -655,10 +751,24 @@
             <button class="import-btn" onclick="document.getElementById('importInput').click()">📁 Importar Imágenes</button>
             <input type="file" id="importInput" accept="image/*" multiple style="display:none" onchange="importImages(this)">
             <div class="animal-count-selector">
-                <span>Animales por tarjeta:</span>
+                <span>Animales:</span>
                 <button class="count-btn active" data-count="1" onclick="setGlobalAnimalCount(1)">1</button>
                 <button class="count-btn" data-count="2" onclick="setGlobalAnimalCount(2)">2</button>
                 <button class="count-btn" data-count="3" onclick="setGlobalAnimalCount(3)">3</button>
+            </div>
+            <div class="bulk-actions">
+                <span>🎨 Frontales:</span>
+                <button class="bulk-btn" onclick="showBulkColorMenu('front-border')">Borde</button>
+                <button class="bulk-btn" onclick="showBulkColorMenu('front-bg')">Fondo</button>
+                <span>🎨 Traseras:</span>
+                <button class="bulk-btn" onclick="showBulkColorMenu('back-border')">Borde</button>
+                <button class="bulk-btn" onclick="showBulkColorMenu('back-bg')">Fondo</button>
+            </div>
+            <div id="bulkColorMenu" class="bulk-color-menu">
+                <div class="bulk-color-options"></div>
+                <button class="bulk-image-btn" onclick="document.getElementById('bulkBgInput').click()">🖼️ Elegir imagen de fondo</button>
+                <input type="file" id="bulkBgInput" accept="image/*" style="display:none" onchange="applyBulkBackground(this)">
+                <button class="bulk-close" onclick="closeBulkColorMenu()">✕</button>
             </div>
         </div>
         
@@ -1266,6 +1376,128 @@
             input.value = '';
         }
         
+        let currentBulkType = '';
+        
+        function showBulkColorMenu(type) {
+            currentBulkType = type;
+            const menu = document.getElementById('bulkColorMenu');
+            const options = menu.querySelector('.bulk-color-options');
+            options.innerHTML = '';
+            
+            const colors = [
+                '#c9a227', '#8b0000', '#1e3a5f', '#1a4d1a', 
+                '#c0c0c0', '#000000', '#ffffff', '#6b21a8',
+                '#ea580c', '#db2777', '#0d9488', '#4f46e5',
+                '#be123c', '#166534', '#7c3aed', '#dc2626',
+                '#f59e0b', '#0891b2', '#e11d48', '#635bff',
+                '#0d0d1a', '#1a1a2e', '#000000', '#1e3a5f'
+            ];
+            
+            colors.forEach(color => {
+                const btn = document.createElement('div');
+                btn.className = 'bulk-color-option';
+                btn.style.background = color;
+                btn.onclick = function() {
+                    applyBulkChange(color);
+                    closeBulkColorMenu();
+                };
+                options.appendChild(btn);
+            });
+            
+            // Posicionar el menú
+            const importSection = document.querySelector('.import-section');
+            const rect = importSection.getBoundingClientRect();
+            menu.style.top = (rect.bottom + 10) + 'px';
+            menu.style.left = '50%';
+            menu.style.transform = 'translateX(-50%)';
+            menu.classList.add('active');
+            
+            // Mostrar botón de imagen solo para tipos de fondo
+            const imageBtn = menu.querySelector('.bulk-image-btn');
+            if (imageBtn) {
+                if (type === 'front-bg' || type === 'back-bg') {
+                    imageBtn.style.display = 'block';
+                } else {
+                    imageBtn.style.display = 'none';
+                }
+            }
+        }
+        
+        function applyBulkBackground(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                
+                if (currentBulkType === 'front-bg') {
+                    for (let i = 0; i < 16; i++) {
+                        const carta = document.getElementById(`card-${i}`);
+                        const cardInner = carta.querySelector('.card-inner');
+                        cardInner.style.backgroundImage = `url(${imageUrl})`;
+                        cardInner.style.backgroundSize = 'cover';
+                        cardInner.style.backgroundPosition = 'center';
+                    }
+                    saveState();
+                } else if (currentBulkType === 'back-bg') {
+                    for (let i = 0; i < 16; i++) {
+                        const carta = document.getElementById(`card-back-${i}`);
+                        const cardInner = carta.querySelector('.card-back-inner');
+                        cardInner.style.backgroundImage = `url(${imageUrl})`;
+                        cardInner.style.backgroundSize = 'cover';
+                        cardInner.style.backgroundPosition = 'center';
+                    }
+                    saveState();
+                }
+                
+                alert('Imagen de fondo aplicada a todas las tarjetas');
+                closeBulkColorMenu();
+                input.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function closeBulkColorMenu() {
+            document.getElementById('bulkColorMenu').classList.remove('active');
+        }
+        
+        function applyBulkChange(color) {
+            saveState();
+            
+            if (currentBulkType === 'front-border') {
+                // Cambiar borde de todas las frontales
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-${i}`);
+                    carta.style.borderImage = 'none';
+                    carta.style.border = `3px solid ${color}`;
+                    carta.classList.add('card-custom-border');
+                    carta.classList.remove('card-original-border');
+                }
+            } else if (currentBulkType === 'front-bg') {
+                // Cambiar fondo de todas las frontales
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-${i}`);
+                    const cardInner = carta.querySelector('.card-inner');
+                    cardInner.style.background = color;
+                }
+            } else if (currentBulkType === 'back-border') {
+                // Cambiar borde de todas las traseras
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-back-${i}`);
+                    carta.style.borderImage = 'none';
+                    carta.style.border = `3px solid ${color}`;
+                }
+            } else if (currentBulkType === 'back-bg') {
+                // Cambiar fondo de todas las traseras
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-back-${i}`);
+                    const cardInner = carta.querySelector('.card-back-inner');
+                    cardInner.style.background = color;
+                }
+            }
+        }
+        
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1821,6 +2053,9 @@
             }
             if (!e.target.closest('.bg-menu-options') && !e.target.closest('.bg-menu-btn')) {
                 document.querySelectorAll('.bg-menu-options').forEach(p => p.classList.remove('show'));
+            }
+            if (!e.target.closest('.bulk-color-menu') && !e.target.closest('.bulk-btn')) {
+                document.getElementById('bulkColorMenu').classList.remove('show');
             }
             document.getElementById('contextMenu').classList.remove('show');
             document.getElementById('contextMenuNumber').classList.remove('show');
