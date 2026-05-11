@@ -528,6 +528,55 @@
             transform: scale(1.05);
         }
         
+        .bulk-btn.small {
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 45px;
+        }
+        
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-btn {
+            min-width: 100px;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background: rgba(10, 10, 20, 0.98);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+            min-width: 100px;
+            top: 100%;
+            margin-top: 4px;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-menu button {
+            display: block;
+            width: 100%;
+            padding: 8px 15px;
+            background: transparent;
+            border: none;
+            color: var(--light-gold);
+            font-size: 13px;
+            cursor: pointer;
+            text-align: left;
+        }
+        
+        .dropdown-menu button:hover {
+            background: rgba(201, 162, 39, 0.3);
+        }
+        
         .bulk-color-menu {
             display: none;
             position: absolute;
@@ -760,9 +809,27 @@
                 <span>🎨 Frontales:</span>
                 <button class="bulk-btn" onclick="showBulkColorMenu('front-border')">Borde</button>
                 <button class="bulk-btn" onclick="showBulkColorMenu('front-bg')">Fondo</button>
+                <div class="dropdown-container">
+                    <button class="bulk-btn dropdown-btn" onclick="toggleDropdown('frontAdjust')">📐 Ajustar ▾</button>
+                    <div class="dropdown-menu" id="frontAdjustMenu">
+                        <button onclick="setBulkImageSize('front', 'cover')">Cover</button>
+                        <button onclick="setBulkImageSize('front', 'contain')">Contain</button>
+                        <button onclick="setBulkImageSize('front', 'auto')">Auto</button>
+                        <button onclick="setBulkImageSize('front', 'stretch')">Stretch</button>
+                    </div>
+                </div>
                 <span>🎨 Traseras:</span>
                 <button class="bulk-btn" onclick="showBulkColorMenu('back-border')">Borde</button>
                 <button class="bulk-btn" onclick="showBulkColorMenu('back-bg')">Fondo</button>
+                <div class="dropdown-container">
+                    <button class="bulk-btn dropdown-btn" onclick="toggleDropdown('backAdjust')">📐 Ajustar ▾</button>
+                    <div class="dropdown-menu" id="backAdjustMenu">
+                        <button onclick="setBulkImageSize('back', 'cover')">Cover</button>
+                        <button onclick="setBulkImageSize('back', 'contain')">Contain</button>
+                        <button onclick="setBulkImageSize('back', 'auto')">Auto</button>
+                        <button onclick="setBulkImageSize('back', 'stretch')">Stretch</button>
+                    </div>
+                </div>
             </div>
             <div id="bulkColorMenu" class="bulk-color-menu">
                 <div class="bulk-color-options"></div>
@@ -1457,6 +1524,91 @@
             };
             reader.readAsDataURL(file);
         }
+        
+        function adjustAllImages(type) {
+            saveState();
+            
+            if (type === 'front') {
+                // Ajustar todas las imágenes de las tarjetas frontales
+                for (let cardIndex = 0; cardIndex < 16; cardIndex++) {
+                    const carta = document.getElementById(`card-${cardIndex}`);
+                    const sections = carta.querySelectorAll('.animal-section');
+                    
+                    sections.forEach(section => {
+                        // Verificar si tiene imagen personalizada
+                        if (section.hasAttribute('data-custom')) {
+                            section.style.backgroundSize = 'cover';
+                            section.style.backgroundPosition = 'center';
+                            section.style.transform = '';
+                            // Quitar bordes de recorte si existen
+                            const computedStyle = window.getComputedStyle(section);
+                            // Mantener cualquier configuración de grid
+                        }
+                    });
+                }
+                alert('Imágenes de tarjetas frontales ajustadas correctamente');
+            } else if (type === 'back') {
+                // Ajustar todas las imágenes de fondo de las tarjetas traseras
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-back-${i}`);
+                    const cardInner = carta.querySelector('.card-back-inner');
+                    if (cardInner.style.backgroundImage && cardInner.style.backgroundImage !== 'none') {
+                        cardInner.style.backgroundSize = 'cover';
+                        cardInner.style.backgroundPosition = 'center';
+                    }
+                }
+                alert('Imágenes de tarjetas traseras ajustadas correctamente');
+            }
+        }
+        
+        function setBulkImageSize(type, size) {
+            saveState();
+            
+            let sizeValue = 'cover';
+            if (size === 'contain') sizeValue = 'contain';
+            else if (size === 'auto') sizeValue = 'auto';
+            else if (size === 'stretch') sizeValue = '100% 100%';
+            
+            if (type === 'front') {
+                // Aplicar a todas las secciones de animal de las tarjetas frontales
+                for (let cardIndex = 0; cardIndex < 16; cardIndex++) {
+                    const carta = document.getElementById(`card-${cardIndex}`);
+                    const sections = carta.querySelectorAll('.animal-section');
+                    
+                    sections.forEach(section => {
+                        if (section.style.display !== 'none') {
+                            section.style.backgroundSize = sizeValue;
+                        }
+                    });
+                }
+                alert(`Imágenes de frontales ajustadas a ${size}`);
+            } else if (type === 'back') {
+                // Aplicar al fondo de las tarjetas traseras
+                for (let i = 0; i < 16; i++) {
+                    const carta = document.getElementById(`card-back-${i}`);
+                    const cardInner = carta.querySelector('.card-back-inner');
+                    cardInner.style.backgroundSize = sizeValue;
+                }
+                alert(`Imágenes de traseras ajustadas a ${size}`);
+            }
+        }
+        
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id + 'Menu');
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            
+            allDropdowns.forEach(d => {
+                if (d !== menu) d.classList.remove('show');
+            });
+            
+            menu.classList.toggle('show');
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
+            }
+        });
         
         function closeBulkColorMenu() {
             document.getElementById('bulkColorMenu').classList.remove('active');
